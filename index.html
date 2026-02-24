@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/javascript.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Test Case Generator - Groq Powered</title>
+    <meta name="description" content="Generate comprehensive software test cases instantly using AI powered by Groq." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <div class="background-glow"></div>
+      <main class="container">
+        <header class="header">
+          <h1 class="title">AI Test Case <span class="gradient-text">Generator</span></h1>
+          <p class="subtitle">Enter your requirements or feature description below to generate detailed manual test cases.</p>
+        </header>
+
+        <section class="generator-card">
+          <div class="input-group">
+            <label for="query-input">User Query / Requirements</label>
+            <textarea 
+              id="query-input" 
+              placeholder="e.g., Generate test cases for a login page with email and password, including validation for incorrect password and empty fields..."
+            ></textarea>
+          </div>
+          
+          <button id="generate-btn" class="primary-btn">
+            <span class="btn-text">Generate Test Case</span>
+            <div class="loader" id="btn-loader" style="display: none;"></div>
+          </button>
+        </section>
+
+        <section id="result-container" class="result-card hidden">
+          <div class="result-header">
+            <h2>Generated Test Cases</h2>
+            <button id="copy-btn" class="secondary-btn">Copy to Clipboard</button>
+          </div>
+          <div id="test-case-output" class="markdown-body"></div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
