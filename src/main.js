@@ -19,23 +19,6 @@ let attachedFileName = null;
 let lastGeneratedResult = '';
 
 async function generateTestCase(query) {
-  const prompt = `You are an Expert QA Automation Engineer and Test Lead. Your objective is to read the provided requirements or PRD and generate EXHAUSTIVE, DETAILED, AND COMPREHENSIVE manual test cases that cover ALL functionalities and scenarios.
-
-  Do NOT simply list high-level tests. You must dive deep into:
-  - Positive scenarios (happy paths)
-  - Negative scenarios (invalid inputs, error states, boundary conditions)
-  - Edge cases, Security, and UI/UX validations.
-
-  Requirement/Context:
-  "${query}"
-
-  Format the output STRICTLY as a single Markdown table. 
-  - The columns of the table must MATCH exactly what the user requests in their query (e.g., if they ask for "Module", "Step", "Expected", use those).
-  - If the user does not specify a format, use the following standard columns: Test Case ID | Description | Pre-requisites | Test Steps | Expected Result | Priority.
-  - DO NOT output list-based formatting. ALL test cases must be inside the table.
-  
-  Do not skip any features. Your coverage must be 100%.`;
-
   try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -48,28 +31,65 @@ async function generateTestCase(query) {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that generates detailed software test cases.'
+            content: `You are a QA automation lead operating under strict anti-hallucination rules.
+
+## MISSION
+Your objective is to generate manual test cases for functionalities and scenarios EXPLICITLY provided in the context.
+
+## SCOPE OF KNOWLEDGE
+You may ONLY use information explicitly provided in the PRD, API documentation, Logs, Screenshots, Test data, or User input provided in the prompt.
+
+## STRICT RULES (MANDATORY)
+1. DO NOT invent features, APIs, error codes, UI elements, or behavior.
+2. DO NOT assume default or "typical" system behavior.
+3. If information is missing or unclear for a specific element, respond with: "Insufficient information to determine for [feature]."
+4. Every assertion must be traceable to provided input. 
+5. If a detail is inferred, label it explicitly as: "Inference (low confidence)".
+6. Output must be deterministic and repeatable.
+7. Focus on depth (positive paths, negative paths, boundary cases) but ONLY within the provided facts.
+
+## PROCESS YOU MUST FOLLOW
+Step 1: Extract verifiable facts from the input.
+Step 2: List unknown or missing information.
+Step 3: Generate output ONLY from Step 1 facts. This MUST be a single Markdown table.
+Step 4: Perform a self-check for hallucinations or contradictions.
+
+## OUTPUT FORMAT (STRICT)
+- Verified Facts: 
+- Missing / Unknown Information:
+- Generated Output:
+[Your Markdown Table]
+- Self-Validation Check:
+
+## TABLE SPECIFICATIONS
+- Detect columns requested in the query. If none, use: Test Case ID | Description | Pre-requisites | Test Steps | Expected Result | Priority.
+- ALL test cases must be inside the table.
+
+If you cannot complete a step, stop and report why.`
           },
           {
             role: 'user',
-            content: prompt
+            content: `User Requirements and Context:
+"${query}"
+
+Generate the test cases adhering strictly to the anti-hallucination process.`
           }
         ],
-        temperature: 0.3,
+        temperature: 0,
         max_tokens: 6000
       })
-    })
+    });
 
     if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.error?.message || 'Failed to generate test cases')
+      const errorData = await response.json();
+      throw new Error(errorData.error?.message || 'Failed to generate test cases');
     }
 
-    const data = await response.json()
-    return data.choices[0].message.content
+    const data = await response.json();
+    return data.choices[0].message.content;
   } catch (error) {
-    console.error('Error calling Groq API:', error)
-    throw error
+    console.error('Error calling Groq API:', error);
+    throw error;
   }
 }
 
